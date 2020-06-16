@@ -11,32 +11,41 @@
 //Requires
 var express = require('express');
 var mongoose = require('mongoose');
-
+var bodyparser = require('body-parser');
 
 // Inicializar variables
 var app = express();
 
-// conexion a base de datos (utilizar libreria de mongoose)
-mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) => {
+//MIDDLEWARE - se ejecutaran siempre los app.use
+// Body parser - transformacion de JSON utilizar para crear - obtener urlenconded
+app.use(bodyparser.urlencoded({extended: false}))
+app.use(bodyparser.json())
 
+
+// imports rutas
+var appRoutes = require('./routes/app.routes');
+var usuarioRoutes = require('./routes/usuario.route');
+var loginRoutes = require('./routes/login.route');
+
+//--------------------------------------------------
+
+// conexion a base de datos (utilizar libreria de mongoose)
+//mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) => {
+mongoose.connect('mongodb://localhost:27017/hospitalDB',{useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true}, (err, res) => {
     //si sucede algun error o el parametro trae algun error entonces lanzar error - throw detiene el proceso
     if(err) throw err;
 
     //si sucede un error no se ejecuta el console.log
-    console.log('Base de datos: \x1b[32m%s\x1b[0m', 'online');
+    console.log('2. Base de datos: \x1b[32m%s\x1b[0m', 'online');
 
 });
 
-//rutas
-app.get('/', (request, response, next) => {
-
-    response.status(200).json({
-        ok: true,
-        mensaje:'Peticion realizada correctamente'
-    })
-});
+//Rutas - MIDDLEWARES - se ejecutan antes 
+app.use('/login', loginRoutes);
+app.use('/usuario', usuarioRoutes);
+app.use('/', appRoutes);
 
 //Escuchar peticiones
 app.listen(3000,  ()=> {
-    console.log('Express server puerto 3000: \x1b[32m%s\x1b[0m', 'online');
+    console.log('1. Express server puerto 3000: \x1b[32m%s\x1b[0m', 'online');
 });
