@@ -4,7 +4,7 @@ var bcrypt = require('bcryptjs'); //-> se usa donde uno desea encriptar los dato
 var jwt = require('jsonwebtoken');
 
 //importar autenticador
-var middlewareAutheticaion  =require('../middlewares/authentication');
+var middlewareAutheticaion = require('../middlewares/authentication');
 
 var app = express();
 
@@ -12,7 +12,9 @@ var app = express();
 
 // importar el modelo de usuario (importar schema)
 var Usuario = require('../models/usuario.service');
-const { request } = require('./login.route');
+const {
+    request
+} = require('./login.route');
 
 
 //---------------------------------------------------------
@@ -27,11 +29,16 @@ const { request } = require('./login.route');
  */
 app.get('/', (request, response, next) => {
 
+
+    var desde = request.query.desde || 0; //declarar variable obteniendo del query el desde que numero se obtendra los registros
+
+    desde = Number(desde);
     //Usar modelo ----- secoloca esto para especificar lso campos que se desean y luego
     // iria exec() para ejecutar la funcion de flecha
     // llaves amarillas dentro de find permite hacer consultas en base de datos
     Usuario.find({}, 'nombre email img role ')
-
+        .skip(desde) // decir que me salte el numero desde si coloca 5 en request que salte los primeros 5 y luego con limit cargue lso siguientes 5
+        .limit(5) // colocar limite de 5 registros para mostrar y poder PAGINAR
         .exec((error, usuariosCompletos) => {
             if (error) {
                 //status - 500 - Internal server error
@@ -42,10 +49,23 @@ app.get('/', (request, response, next) => {
                 });
             }
 
-            response.status(200).json({
-                ok: true,
-                usuarios: usuariosCompletos
-            })
+            Usuario.count({}, (error, conteo) => {
+
+                if (error) {
+                    response.status(402).json({
+                        ok: false,
+                        mensaje: 'Error al contar los usuarios',
+                        errors: error
+                    });
+                }
+
+                response.status(200).json({
+                    ok: true,
+                    totalUsuarios: conteo,
+                    usuarios: usuariosCompletos
+                });
+            });
+
 
         });
 
@@ -65,27 +85,29 @@ app.get('/', (request, response, next) => {
 // ----- ACTUALIZAR USUARIO -----------------------------
 //--------------------------------------------------------------------------------------
 
-app.put('/:id', middlewareAutheticaion.verificaToken , (request, response) => {
+app.put('/:id', middlewareAutheticaion.verificaToken, (request, response) => {
     var id = request.params.id;
     var body = request.body;
 
-   /* Usuario.findById(id, 'nombre email img role')
-   // o tambien ...findById({id: body.id}, 'nombre email img role')
-    .exec((error, usuario) => {*/ //1.  para obtener lso campos que quiero que muestre!!!
-        Usuario.findById(id,(error, usuario) => {
+    /* Usuario.findById(id, 'nombre email img role')
+    // o tambien ...findById({id: body.id}, 'nombre email img role')
+     .exec((error, usuario) => {*/ //1.  para obtener lso campos que quiero que muestre!!!
+    Usuario.findById(id, (error, usuario) => {
 
-        if(error){
+        if (error) {
             //error 500 porque debe retornar usuario y si no lo trae hay falla en servidor
             return response.status(500).json({
                 ok: false,
                 mesaje: 'Error al buscar usuario',
                 errors: error
             });
-        }else if(!usuario){
+        } else if (!usuario) {
             return response.status(400).json({
                 ok: false,
-                mensaje: 'El usuario con el '+ id + ' no existe',
-                errors: {message: 'No existe un usuario con ese ID'}
+                mensaje: 'El usuario con el ' + id + ' no existe',
+                errors: {
+                    message: 'No existe un usuario con ese ID'
+                }
             });
         }
 
@@ -95,9 +117,9 @@ app.put('/:id', middlewareAutheticaion.verificaToken , (request, response) => {
         usuario.role = body.role;
 
         //ahora guardar el usuario actualizado
-        usuario.save( (error, usuarioGuardado) => {
-           
-            if(error){
+        usuario.save((error, usuarioGuardado) => {
+
+            if (error) {
                 return response.status(400).json({
                     ok: false,
                     mensaje: 'Error al actualizar usuario',
@@ -137,7 +159,7 @@ app.put('/:id', middlewareAutheticaion.verificaToken , (request, response) => {
  * Metodo para crear un nuevo usuario
  * verificacion de token:  se ejecutara cuando sea que se solicite esa peticion
  */
-app.post('/', middlewareAutheticaion.verificaToken ,(request, response) => {
+app.post('/', middlewareAutheticaion.verificaToken, (request, response) => {
 
     // UTILIZAREMOS DOY PARSER NODE - MIDDLEWARE
     var body = request.body;
@@ -177,28 +199,30 @@ app.post('/', middlewareAutheticaion.verificaToken ,(request, response) => {
 //--------------------------------------------------------------------------------------
 // ----- ELIMINAR UN USUARIO  POR ID -----------------------------
 //--------------------------------------------------------------------------------------
-app.delete('/:deleteUser', middlewareAutheticaion.verificaToken , (request, response) => {
+app.delete('/:deleteUser', middlewareAutheticaion.verificaToken, (request, response) => {
 
     var id = request.params.deleteUser;
 
     Usuario.findByIdAndRemove(id, (error, usuarioBorrado) => {
-        
+
         if (error) {
-            
+
             response.status(500).json({
                 ok: false,
                 mensaje: 'Error al borrar usuario',
                 errors: error
             });
-        }else if(!usuarioBorrado){
+        } else if (!usuarioBorrado) {
             response.status(400).json({
                 ok: false,
-                mensaje: 'El usuario con el id: '+ id + ' no se encuentra',
-                errors: {message: 'No existe usuario con ese id'}
+                mensaje: 'El usuario con el id: ' + id + ' no se encuentra',
+                errors: {
+                    message: 'No existe usuario con ese id'
+                }
             });
         }
 
-       
+
         response.status(200).json({
             ok: true,
             usuario: usuarioBorrado
@@ -206,5 +230,9 @@ app.delete('/:deleteUser', middlewareAutheticaion.verificaToken , (request, resp
 
     });
 });
+
+
+
+
 
 module.exports = app;

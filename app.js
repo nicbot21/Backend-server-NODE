@@ -26,6 +26,10 @@ app.use(bodyparser.json())
 var appRoutes = require('./routes/app.routes');
 var usuarioRoutes = require('./routes/usuario.route');
 var loginRoutes = require('./routes/login.route');
+var hospitalRoutes = require('./routes/hospital.route');
+var medicoRoutes = require('./routes/medico.route');
+var busquedaRoutes = require('./routes/busqueda.route');
+var uploadRoutes = require('./routes/upload.route');
 
 //--------------------------------------------------
 
@@ -41,9 +45,14 @@ mongoose.connect('mongodb://localhost:27017/hospitalDB',{useNewUrlParser: true, 
 });
 
 //Rutas - MIDDLEWARES - se ejecutan antes 
+app.use('/medico', medicoRoutes);
+app.use('/hospital', hospitalRoutes);
 app.use('/login', loginRoutes);
 app.use('/usuario', usuarioRoutes);
-app.use('/', appRoutes);
+app.use('/busqueda', busquedaRoutes);
+app.use('/upload', uploadRoutes);
+
+app.use('/', appRoutes); // ULTIMA RUTA
 
 //Escuchar peticiones
 app.listen(3000,  ()=> {

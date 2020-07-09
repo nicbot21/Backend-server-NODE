@@ -22,6 +22,8 @@ exports.verificaToken = function( request, response, next){
             }
 
             request.usuario = decoded.usuario;
+            //request.hospital = decoded.hospital;
+            
             //si no hay error entonces aplica next para que siga
             // con las funciones siguientes hacia abajo
             next();
