@@ -30,6 +30,7 @@ var hospitalRoutes = require('./routes/hospital.route');
 var medicoRoutes = require('./routes/medico.route');
 var busquedaRoutes = require('./routes/busqueda.route');
 var uploadRoutes = require('./routes/upload.route');
+var imagenesRoutes = require('./routes/imagenes.route');
 
 //--------------------------------------------------
 
@@ -44,6 +45,15 @@ mongoose.connect('mongodb://localhost:27017/hospitalDB',{useNewUrlParser: true, 
 
 });
 
+//Server Index config - desplegue de imagenes 
+var serveIndex = require('serve-index');
+app.use(express.static(__dirname + '/' ));
+app.use( '/uploads', serveIndex(__dirname + '/uploads'));
+
+
+
+
+
 //Rutas - MIDDLEWARES - se ejecutan antes 
 app.use('/medico', medicoRoutes);
 app.use('/hospital', hospitalRoutes);
@@ -51,6 +61,7 @@ app.use('/login', loginRoutes);
 app.use('/usuario', usuarioRoutes);
 app.use('/busqueda', busquedaRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/img', imagenesRoutes);
 
 app.use('/', appRoutes); // ULTIMA RUTA
 
