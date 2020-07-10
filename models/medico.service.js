@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 var medicoSchema = new Schema({
 
     nombre: { type: String, require: [true , 'El nombre es necesario']},
-    img: {type: String, required: false},
+    img: { type: String, required: false },
     usuario: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
     hospital: { type: Schema.Types.ObjectId, ref: 'Hospital', required: [true, 'el id hospial es un campo obligatorio' ]}
 });
