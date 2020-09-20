@@ -9,7 +9,7 @@ var bcrypt = require('bcryptjs');
 var middlewareAutheticaion = require('../middlewares/authentication');
 var app = express();
 
-//imporar modelo de hospital
+//importar modelo de hospital
 var Hospital = require('../models/hospital.service');
 const {
     request

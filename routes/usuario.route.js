@@ -36,7 +36,7 @@ app.get('/', (request, response, next) => {
     //Usar modelo ----- secoloca esto para especificar lso campos que se desean y luego
     // iria exec() para ejecutar la funcion de flecha
     // llaves amarillas dentro de find permite hacer consultas en base de datos
-    Usuario.find({}, 'nombre email img role ')
+    Usuario.find({}, 'nombre email img role google')
         .skip(desde) // decir que me salte el numero desde si coloca 5 en request que salte los primeros 5 y luego con limit cargue lso siguientes 5
         .limit(5) // colocar limite de 5 registros para mostrar y poder PAGINAR
         .exec((error, usuariosCompletos) => {
@@ -60,10 +60,11 @@ app.get('/', (request, response, next) => {
                 }
 
                 response.status(200).json({
-                    ok: true,
+                   // ok: true,
                     totalUsuarios: conteo,
                     usuarios: usuariosCompletos
                 });
+               // console.log('recibir usuario al obtenerlo: get: --> ', usuariosCompletos)
             });
 
 
@@ -158,8 +159,9 @@ app.put('/:id', middlewareAutheticaion.verificaToken, (request, response) => {
 /**
  * Metodo para crear un nuevo usuario
  * verificacion de token:  se ejecutara cuando sea que se solicite esa peticion
+ *  middlewareAutheticaion.verificaToken - van en segunda posicion si se quiere colocar token de autenticacion
  */
-app.post('/', middlewareAutheticaion.verificaToken, (request, response) => {
+app.post('/', (request, response) => {
 
     // UTILIZAREMOS DOY PARSER NODE - MIDDLEWARE
     var body = request.body;

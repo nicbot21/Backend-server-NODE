@@ -14,12 +14,16 @@ app.get('/:tipoTabla/:img', (request, response, next) => {
     fs.exists( path, existe => {
 
         if(!existe){
-            path= './assets/No_image_Available.jpg';
+           /* response.status(400).json({
+                ok:false,
+                mensaje: 'No existe la imagen'
+            })*/
+            path = './assets/guest.png';
         }
 
         //mandar imagen
         //response.sendfile(path);
-        response.sendFile( path, (error) => {
+        response.sendfile( path, (error) => {
             if(error) throw error;
             console.log('Se envío la imagen correctamente');
         });
